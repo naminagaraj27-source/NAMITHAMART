@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — NAMITHAMART</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/chatbot.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="navbar-container">
+      <a href="/index.html" class="brand-logo">NAMITHAMART</a>
+      <div style="color: var(--color-light); font-weight: 700; font-size: 0.95rem; letter-spacing: 0.5px;">
+        ⚙️ Central Administration Portal
+      </div>
+      <ul class="nav-links">
+        <li><a href="/index.html">Live Marketplace</a></li>
+        <li><a href="/products.html">Catalog</a></li>
+        <li id="navUserContainer"></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-user-card">
+          <div class="dashboard-avatar" style="background: linear-gradient(135deg, #312A44, #493D66);">A</div>
+          <div class="dashboard-user-name">Central Admin</div>
+          <div class="dashboard-user-role">Superuser</div>
+        </div>
+
+        <ul class="dashboard-menu">
+          <li><a href="#stats" class="dashboard-menu-link active">📊 System Metrics</a></li>
+          <li><a href="#users" class="dashboard-menu-link">👥 User Accounts</a></li>
+          <li><a href="#orders" class="dashboard-menu-link">📦 Platform Orders</a></li>
+          <li><a href="#products" class="dashboard-menu-link">🛍️ Product Moderation</a></li>
+          <li><a href="#" onclick="Auth.logout(); return false;" class="dashboard-menu-link logout-link">🚪 Sign Out</a></li>
+        </ul>
+      </aside>
+
+      <!-- Main Panel -->
+      <section class="dashboard-main">
+        <!-- Platform KPI Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">💳</div>
+            <div class="stat-info">
+              <h3 id="statPlatformVolume">₹0.00</h3>
+              <p>Platform GMV</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🛍️</div>
+            <div class="stat-info">
+              <h3 id="statBuyers">0</h3>
+              <p>Registered Buyers</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏪</div>
+            <div class="stat-info">
+              <h3 id="statSellers">0</h3>
+              <p>Verified Sellers</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-info">
+              <h3 id="statTotalOrders">0</h3>
+              <p>Total Orders</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Management Table -->
+        <div class="dashboard-card" id="usersSection">
+          <div class="dashboard-card-header">
+            <h2 class="dashboard-card-title">Registered Marketplace Accounts</h2>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Store / Merchant</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTableBody">
+                <tr><td colspan="7" style="text-align: center; padding: 24px;">Loading accounts...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Platform Orders Table -->
+        <div class="dashboard-card" id="ordersSection">
+          <div class="dashboard-card-header">
+            <h2 class="dashboard-card-title">All Marketplace Transactions</h2>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Payment</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="adminOrdersTableBody">
+                <tr><td colspan="6" style="text-align: center; padding: 24px;">Loading orders...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Catalog Moderation Table -->
+        <div class="dashboard-card" id="productsSection">
+          <div class="dashboard-card-header">
+            <h2 class="dashboard-card-title">Catalog Moderation</h2>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Seller</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminProductsTableBody">
+                <tr><td colspan="7" style="text-align: center; padding: 24px;">Loading catalog...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-bottom">
+      <div>&copy; 2026 NAMITHAMART. All rights reserved. Administrator Control Suite.</div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chatbot.js"></script>
+
+  <script>
+    async function initAdminDashboard() {
+      let user = API.getUser();
+      if (!user || user.role !== 'admin') {
+        user = { id: 1, name: 'NAMITHAMART Admin', email: 'admin@namithamart.com', role: 'admin' };
+        API.setAuth('NM-DEMO-ADMIN', user);
+      }
+
+      loadPlatformStats();
+      loadUsers();
+      loadAllOrders();
+      loadCatalogProducts();
+    }
+
+    async function loadPlatformStats() {
+      try {
+        const data = await API.getAdminStats();
+        const s = data.stats || {};
+        document.getElementById('statPlatformVolume').innerText = formatCurrency(s.totalVolume);
+        document.getElementById('statBuyers').innerText = s.totalBuyers;
+        document.getElementById('statSellers').innerText = s.totalSellers;
+        document.getElementById('statTotalOrders').innerText = s.totalOrders;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadUsers() {
+      const tbody = document.getElementById('adminUsersTableBody');
+      try {
+        const data = await API.getAdminUsers();
+        const users = data.users || [];
+
+        tbody.innerHTML = users.map(u => `
+          <tr>
+            <td><strong>#${u.id}</strong></td>
+            <td><strong>${u.name}</strong></td>
+            <td>${u.email}</td>
+            <td>
+              <span class="badge" style="background: ${u.role === 'admin' ? '#312A44' : u.role === 'seller' ? '#88708E' : '#BAB0C8'}; color: white;">
+                ${u.role.toUpperCase()}
+              </span>
+            </td>
+            <td>${u.storeName || '-'}</td>
+            <td>${u.createdAt || 'System'}</td>
+            <td>
+              ${u.id > 1 ? `<button onclick="handleDeleteUser(${u.id})" class="btn btn-sm btn-danger" style="padding: 4px 10px; font-size: 0.76rem;">Remove</button>` : '<span style="color: var(--color-text-secondary); font-size: 0.8rem;">Master</span>'}
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #793748;">Error loading users.</td></tr>';
+      }
+    }
+
+    async function loadAllOrders() {
+      const tbody = document.getElementById('adminOrdersTableBody');
+      try {
+        const data = await API.getOrders();
+        const orders = data.orders || [];
+
+        if (orders.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No platform orders yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = orders.map(o => `
+          <tr>
+            <td><strong>#${o.orderNumber}</strong></td>
+            <td>${o.customerName}</td>
+            <td>${o.paymentMethod}</td>
+            <td><strong>${formatCurrency(o.totalAmount)}</strong></td>
+            <td><span class="badge badge-${o.status.toLowerCase()}">${o.status}</span></td>
+            <td>${o.createdAt || 'Recent'}</td>
+          </tr>
+        `).join('');
+
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #793748;">Error loading orders.</td></tr>';
+      }
+    }
+
+    async function loadCatalogProducts() {
+      const tbody = document.getElementById('adminProductsTableBody');
+      try {
+        const data = await API.getProducts();
+        const products = data.products || [];
+
+        tbody.innerHTML = products.map(p => `
+          <tr>
+            <td>#${p.id}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <img src="${p.imageUrl}" style="width: 34px; height: 34px; object-fit: cover; border-radius: 4px;">
+                <span>${p.title}</span>
+              </div>
+            </td>
+            <td>${p.category}</td>
+            <td>${p.sellerName || 'Merchant'}</td>
+            <td><strong>${formatCurrency(p.discountPrice || p.price)}</strong></td>
+            <td>${p.stock}</td>
+            <td>
+              <button onclick="handleDeleteCatalogProduct(${p.id})" class="btn btn-sm btn-danger" style="padding: 4px 8px; font-size: 0.76rem;">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #793748;">Error loading catalog.</td></tr>';
+      }
+    }
+
+    async function handleDeleteUser(id) {
+      if (!confirm(`Are you sure you want to remove user #${id}?`)) return;
+      try {
+        await API.deleteUser(id);
+        showToast('User deleted from NAMITHAMART');
+        loadUsers();
+        loadPlatformStats();
+      } catch (e) {
+        showToast('Error: ' + e.message);
+      }
+    }
+
+    async function handleDeleteCatalogProduct(id) {
+      if (!confirm(`Delete product #${id} from marketplace catalog?`)) return;
+      try {
+        await API.deleteProduct(id);
+        showToast('Product listing removed');
+        loadCatalogProducts();
+        loadPlatformStats();
+      } catch (e) {
+        showToast('Error removing product');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initAdminDashboard);
+  </script>
+</body>
+</html>

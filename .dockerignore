@@ -1,0 +1,7 @@
+.git
+.github
+*.log
+bin/
+namithamart.db
+namithamart.db-shm
+namithamart.db-wal

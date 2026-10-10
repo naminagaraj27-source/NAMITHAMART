@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — NAMITHAMART</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/chatbot.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="navbar-container">
+      <a href="/index.html" class="brand-logo">NAMITHAMART</a>
+      <div style="color: var(--color-light); font-size: 0.95rem; font-weight: 600;">
+        🔒 Secure 256-bit Encrypted Checkout
+      </div>
+      <ul class="nav-links">
+        <li><a href="/cart.html">&larr; Back to Cart</a></li>
+        <li id="navUserContainer"></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <h1 style="color: var(--color-primary); font-size: 1.8rem; font-weight: 800; margin-bottom: 24px;">
+      Complete Your Order
+    </h1>
+
+    <div style="display: grid; grid-template-columns: 1.6fr 1.1fr; gap: 30px;" id="checkoutGrid">
+      <!-- Checkout Form -->
+      <div>
+        <form id="checkoutForm" onsubmit="handlePlaceOrder(event)">
+          <!-- Shipping Address -->
+          <div class="card">
+            <h3 style="color: var(--color-primary); margin-bottom: 18px; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+              📍 1. Delivery Address
+            </h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label for="shipName">Full Name *</label>
+                <input type="text" id="shipName" class="form-control" required placeholder="e.g. Namitha N.">
+              </div>
+              <div class="form-group">
+                <label for="shipPhone">Phone Number *</label>
+                <input type="tel" id="shipPhone" class="form-control" required placeholder="e.g. +91 98765 43210">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="shipEmail">Email Address *</label>
+              <input type="email" id="shipEmail" class="form-control" required placeholder="e.g. namitha@example.com">
+            </div>
+
+            <div class="form-group">
+              <label for="shipAddress">Street Address / House No. *</label>
+              <input type="text" id="shipAddress" class="form-control" required placeholder="e.g. Flat 402, Orchid Apartments, 12th Main Road">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+              <div class="form-group">
+                <label for="shipCity">City *</label>
+                <input type="text" id="shipCity" class="form-control" required placeholder="Bengaluru">
+              </div>
+              <div class="form-group">
+                <label for="shipState">State *</label>
+                <input type="text" id="shipState" class="form-control" required placeholder="Karnataka">
+              </div>
+              <div class="form-group">
+                <label for="shipZip">PIN Code *</label>
+                <input type="text" id="shipZip" class="form-control" required placeholder="560038">
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="card">
+            <h3 style="color: var(--color-primary); margin-bottom: 18px; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+              💳 2. Payment Method
+            </h3>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <label style="display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #FAF8FC; cursor: pointer;">
+                <input type="radio" name="paymentMethod" value="Cash on Delivery" checked style="accent-color: var(--color-primary); width: 18px; height: 18px;">
+                <div>
+                  <div style="font-weight: 700; color: var(--color-primary);">Cash on Delivery (COD)</div>
+                  <div style="font-size: 0.82rem; color: var(--color-text-secondary);">Pay in cash or UPI upon delivery at your doorstep</div>
+                </div>
+              </label>
+
+              <label style="display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #FAF8FC; cursor: pointer;">
+                <input type="radio" name="paymentMethod" value="UPI / Online Banking" style="accent-color: var(--color-primary); width: 18px; height: 18px;">
+                <div>
+                  <div style="font-weight: 700; color: var(--color-primary);">UPI / Instant NetBanking</div>
+                  <div style="font-size: 0.82rem; color: var(--color-text-secondary);">Google Pay, PhonePe, Paytm or BHIM UPI</div>
+                </div>
+              </label>
+
+              <label style="display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #FAF8FC; cursor: pointer;">
+                <input type="radio" name="paymentMethod" value="Credit or Debit Card" style="accent-color: var(--color-primary); width: 18px; height: 18px;">
+                <div>
+                  <div style="font-weight: 700; color: var(--color-primary);">Credit / Debit Card</div>
+                  <div style="font-size: 0.82rem; color: var(--color-text-secondary);">Visa, MasterCard, RuPay with OTP verification</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" id="submitOrderBtn" class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem; font-weight: 800;">
+            Confirm & Place Order on NAMITHAMART
+          </button>
+        </form>
+      </div>
+
+      <!-- Right: Summary Review -->
+      <div>
+        <div class="card">
+          <h3 style="color: var(--color-primary); margin-bottom: 16px; font-size: 1.2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 8px;">
+            Order Items
+          </h3>
+
+          <div id="checkoutItemsList" style="display: flex; flex-direction: column; gap: 12px; max-height: 320px; overflow-y: auto; margin-bottom: 18px;">
+            <p style="color: var(--color-text-secondary);">Loading items...</p>
+          </div>
+
+          <div style="border-top: 1px solid var(--color-border); padding-top: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 0.92rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span>Subtotal:</span>
+              <span id="checkoutSubtotal" style="font-weight: 600;">₹0.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Shipping & Handling:</span>
+              <span style="color: #2F5233; font-weight: 600;">FREE</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Applicable Taxes:</span>
+              <span>Included</span>
+            </div>
+            <div style="border-top: 2px dashed rgba(186,176,200,0.5); padding-top: 12px; display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; color: var(--color-primary);">
+              <span>Total Amount:</span>
+              <span id="checkoutTotal">₹0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Order Confirmation Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box" style="text-align: center; padding: 36px 28px;">
+      <div style="font-size: 3.5rem; margin-bottom: 12px;">🎉</div>
+      <h2 style="color: var(--color-primary); margin-bottom: 8px; font-size: 1.6rem;">
+        Order Placed Successfully!
+      </h2>
+      <p style="color: var(--color-text-secondary); margin-bottom: 18px; font-size: 0.95rem;">
+        Thank you for shopping on <strong>NAMITHAMART</strong>. Your order has been registered and our verified sellers are preparing shipment.
+      </p>
+
+      <div style="background-color: #FAF8FC; padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--color-card-border); margin-bottom: 24px; text-align: left; font-size: 0.9rem;">
+        <div><strong>Order Reference:</strong> <span id="modalOrderNum" style="color: var(--color-primary); font-weight: 700;">-</span></div>
+        <div style="margin-top: 4px;"><strong>Total Charged:</strong> <span id="modalOrderTotal">-</span></div>
+        <div style="margin-top: 4px;"><strong>Status:</strong> <span class="badge badge-placed">PLACED</span></div>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <a href="/buyer-dashboard.html" class="btn btn-primary">Track in Dashboard</a>
+        <a href="/products.html" class="btn btn-outline">Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-bottom">
+      <div>&copy; 2026 NAMITHAMART. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chatbot.js"></script>
+
+  <script>
+    let currentCartData = null;
+
+    async function initCheckout() {
+      const user = API.getUser();
+      if (user) {
+        document.getElementById('shipName').value = user.name || '';
+        document.getElementById('shipEmail').value = user.email || '';
+      }
+
+      try {
+        const data = await API.getCart();
+        currentCartData = data;
+        const items = data.items || [];
+
+        if (items.length === 0) {
+          alert('Your cart is empty. Redirecting to catalog.');
+          window.location.href = '/products.html';
+          return;
+        }
+
+        const listEl = document.getElementById('checkoutItemsList');
+        listEl.innerHTML = items.map(it => `
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 0.88rem;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img src="${it.imageUrl}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px;">
+              <div>
+                <div style="font-weight: 600; color: var(--color-primary);">${it.productTitle}</div>
+                <div style="color: var(--color-text-secondary); font-size: 0.78rem;">Qty: ${it.quantity} &times; ${formatCurrency(it.price)}</div>
+              </div>
+            </div>
+            <div style="font-weight: 700; color: var(--color-primary);">
+              ${formatCurrency(it.price * it.quantity)}
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('checkoutSubtotal').innerText = formatCurrency(data.subtotal);
+        document.getElementById('checkoutTotal').innerText = formatCurrency(data.subtotal);
+
+      } catch (e) {
+        alert('Failed to load cart items for checkout');
+      }
+    }
+
+    async function handlePlaceOrder(e) {
+      e.preventDefault();
+      const user = API.getUser();
+      const userId = user ? user.id : 4;
+
+      const name = document.getElementById('shipName').value.trim();
+      const email = document.getElementById('shipEmail').value.trim();
+      const phone = document.getElementById('shipPhone').value.trim();
+      const address = document.getElementById('shipAddress').value.trim();
+      const city = document.getElementById('shipCity').value.trim();
+      const state = document.getElementById('shipState').value.trim();
+      const zip = document.getElementById('shipZip').value.trim();
+
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+      const fullAddress = `${address}, ${city}, ${state} - ${zip} (Ph: ${phone})`;
+
+      const btn = document.getElementById('submitOrderBtn');
+      btn.disabled = true;
+      btn.innerText = 'Processing your order...';
+
+      try {
+        const payload = {
+          userId,
+          customerName: name,
+          customerEmail: email,
+          shippingAddress: fullAddress,
+          paymentMethod,
+          totalAmount: currentCartData.subtotal,
+          items: currentCartData.items.map(it => ({
+            productId: it.productId,
+            productTitle: it.productTitle,
+            imageUrl: it.imageUrl,
+            sellerId: it.sellerId,
+            price: it.price,
+            quantity: it.quantity
+          }))
+        };
+
+        const res = await API.checkout(payload);
+
+        // Open modal
+        document.getElementById('modalOrderNum').innerText = res.orderNumber;
+        document.getElementById('modalOrderTotal').innerText = formatCurrency(res.totalAmount);
+        document.getElementById('confirmModal').classList.add('open');
+        updateGlobalCartBadge();
+
+      } catch (err) {
+        alert('Order placement failed: ' + err.message);
+        btn.disabled = false;
+        btn.innerText = 'Confirm & Place Order on NAMITHAMART';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initCheckout);
+  </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+bin/
+*.class
+
+# Package Files
+*.jar
+!lib/*.jar
+
+# Database files
+namithamart.db
+namithamart.db-shm
+namithamart.db-wal
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# C++ Build artifacts
+cpp_backend/build/
+cpp_backend/*.exe

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart — NAMITHAMART</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/chatbot.css">
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div>Welcome to <strong>NAMITHAMART</strong> — Multi-Seller Marketplace</div>
+    <div>Safe & Secure Checkout Guaranteed</div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="navbar-container">
+      <a href="/index.html" class="brand-logo">NAMITHAMART</a>
+
+      <ul class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/products.html">All Products</a></li>
+        <li>
+          <a href="/cart.html" class="cart-btn-badge" style="background: rgba(255,255,255,0.25);">
+            🛒 Cart <span id="navCartCount" class="cart-count">0</span>
+          </a>
+        </li>
+        <li id="navUserContainer">
+          <a href="/login.html" class="user-menu-btn">Sign In</a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <h1 style="color: var(--color-primary); font-size: 1.8rem; font-weight: 800; margin-bottom: 24px;">
+      Your NAMITHAMART Shopping Cart
+    </h1>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 28px;" id="cartContainer">
+      <!-- Cart Items List -->
+      <div>
+        <div class="card" id="cartItemsCard" style="padding: 0; overflow: hidden;">
+          <div style="padding: 18px 24px; background-color: var(--color-primary); color: white; font-weight: 700; font-size: 1rem;">
+            Cart Items
+          </div>
+          <div id="cartItemsList" style="padding: 16px 24px;">
+            <p style="text-align: center; color: var(--color-text-secondary); padding: 30px;">Loading your cart...</p>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+          <a href="/products.html" class="btn btn-outline">&larr; Continue Shopping</a>
+          <button onclick="handleClearCart()" class="btn btn-sm btn-danger">Clear Cart</button>
+        </div>
+      </div>
+
+      <!-- Order Summary Card -->
+      <div>
+        <div class="card" style="position: sticky; top: 120px;">
+          <h3 style="color: var(--color-primary); font-size: 1.25rem; font-weight: 700; margin-bottom: 18px; border-bottom: 1px solid var(--color-border); padding-bottom: 10px;">
+            Order Summary
+          </h3>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 0.94rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--color-text-secondary);">Items Subtotal:</span>
+              <span id="summarySubtotal" style="font-weight: 600; color: var(--color-primary);">₹0.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--color-text-secondary);">Estimated Delivery:</span>
+              <span id="summaryDelivery" style="color: #2F5233; font-weight: 600;">FREE</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--color-text-secondary);">Platform Discount:</span>
+              <span style="color: var(--color-secondary); font-weight: 600;">- ₹0.00</span>
+            </div>
+            <div style="border-top: 2px dashed rgba(186,176,200,0.5); padding-top: 14px; display: flex; justify-content: space-between; font-size: 1.15rem; font-weight: 800; color: var(--color-primary);">
+              <span>Total Payable:</span>
+              <span id="summaryTotal">₹0.00</span>
+            </div>
+          </div>
+
+          <a href="/checkout.html" id="checkoutBtn" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+            Proceed to Checkout &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <h2>NAMITHAMART</h2>
+        <p>The modern, trusted multi-seller shopping platform.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <ul class="footer-links">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/products.html">All Products</a></li>
+          <li><a href="/buyer-dashboard.html">My Orders</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul class="footer-links">
+          <li><span>support@namithamart.com</span></li>
+          <li><span>1800-NAMITHA-MART</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>&copy; 2026 NAMITHAMART. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chatbot.js"></script>
+
+  <script>
+    async function loadCart() {
+      const listEl = document.getElementById('cartItemsList');
+      const checkoutBtn = document.getElementById('checkoutBtn');
+
+      try {
+        const data = await API.getCart();
+        const items = data.items || [];
+
+        if (items.length === 0) {
+          listEl.innerHTML = `
+            <div style="text-align: center; padding: 40px 10px;">
+              <div style="font-size: 3rem; margin-bottom: 10px;">🛒</div>
+              <h3 style="color: var(--color-primary); margin-bottom: 6px;">Your cart is currently empty</h3>
+              <p style="color: var(--color-text-secondary); margin-bottom: 20px;">Explore our catalog to find products from various sellers.</p>
+              <a href="/products.html" class="btn btn-primary">Start Shopping</a>
+            </div>
+          `;
+          document.getElementById('summarySubtotal').innerText = '₹0.00';
+          document.getElementById('summaryTotal').innerText = '₹0.00';
+          checkoutBtn.classList.add('disabled');
+          checkoutBtn.style.pointerEvents = 'none';
+          checkoutBtn.style.opacity = '0.5';
+          return;
+        }
+
+        checkoutBtn.classList.remove('disabled');
+        checkoutBtn.style.pointerEvents = 'auto';
+        checkoutBtn.style.opacity = '1';
+
+        listEl.innerHTML = items.map(item => `
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 0; border-bottom: 1px solid rgba(186,176,200,0.3);">
+            <img src="${item.imageUrl}" alt="${item.productTitle}" style="width: 74px; height: 74px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--color-card-border);" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600'">
+            
+            <div style="flex: 1;">
+              <h4 style="font-size: 1rem; color: var(--color-primary); margin-bottom: 4px;">
+                <a href="/product-detail.html?id=${item.productId}">${item.productTitle}</a>
+              </h4>
+              <div style="font-size: 0.8rem; color: var(--color-secondary); font-weight: 600; margin-bottom: 6px;">
+                Sold by: ${item.sellerName || 'Verified Merchant'}
+              </div>
+              <div style="font-size: 0.96rem; font-weight: 700; color: var(--color-primary);">
+                ${formatCurrency(item.price)} each
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; border: 1px solid var(--color-border); border-radius: var(--radius-sm); overflow: hidden;">
+              <button onclick="updateQty(${item.id}, ${item.quantity - 1})" style="padding: 6px 12px; background: var(--color-input-bg); border: none; cursor: pointer; font-weight: bold;">-</button>
+              <span style="padding: 6px 12px; font-weight: 700; font-size: 0.95rem; min-width: 32px; text-align: center;">${item.quantity}</span>
+              <button onclick="updateQty(${item.id}, ${item.quantity + 1})" style="padding: 6px 12px; background: var(--color-input-bg); border: none; cursor: pointer; font-weight: bold;">+</button>
+            </div>
+
+            <div style="text-align: right; min-width: 100px;">
+              <div style="font-size: 1.1rem; font-weight: 800; color: var(--color-primary); margin-bottom: 6px;">
+                ${formatCurrency(item.price * item.quantity)}
+              </div>
+              <button onclick="removeItem(${item.id})" style="background: transparent; border: none; color: #793748; cursor: pointer; font-size: 0.82rem; font-weight: 600;">
+                Remove
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('summarySubtotal').innerText = formatCurrency(data.subtotal);
+        document.getElementById('summaryTotal').innerText = formatCurrency(data.subtotal);
+
+      } catch (err) {
+        listEl.innerHTML = '<p style="color: #793748; text-align: center;">Failed to load cart items.</p>';
+      }
+    }
+
+    async function updateQty(cartId, newQty) {
+      try {
+        await API.updateCartItem(cartId, newQty);
+        loadCart();
+        updateGlobalCartBadge();
+      } catch (e) {
+        showToast('Error updating item quantity');
+      }
+    }
+
+    async function removeItem(cartId) {
+      try {
+        await API.removeCartItem(cartId);
+        showToast('Item removed from cart');
+        loadCart();
+        updateGlobalCartBadge();
+      } catch (e) {
+        showToast('Error removing item');
+      }
+    }
+
+    async function handleClearCart() {
+      if (!confirm('Are you sure you want to clear your cart?')) return;
+      try {
+        await API.clearCart();
+        showToast('Cart cleared');
+        loadCart();
+        updateGlobalCartBadge();
+      } catch (e) {
+        showToast('Error clearing cart');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCart);
+  </script>
+</body>
+</html>

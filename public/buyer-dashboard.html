@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Dashboard — NAMITHAMART</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/chatbot.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="navbar-container">
+      <a href="/index.html" class="brand-logo">NAMITHAMART</a>
+      <ul class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/products.html">Products</a></li>
+        <li>
+          <a href="/cart.html" class="cart-btn-badge">
+            🛒 Cart <span id="navCartCount" class="cart-count">0</span>
+          </a>
+        </li>
+        <li id="navUserContainer"></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-user-card">
+          <div class="dashboard-avatar" id="avatarLetter">N</div>
+          <div class="dashboard-user-name" id="userNameDisplay">Namitha N.</div>
+          <div class="dashboard-user-role">NAMITHAMART Buyer</div>
+        </div>
+
+        <ul class="dashboard-menu">
+          <li><a href="#orders" class="dashboard-menu-link active">📦 My Orders</a></li>
+          <li><a href="/cart.html" class="dashboard-menu-link">🛒 My Cart</a></li>
+          <li><a href="/products.html" class="dashboard-menu-link">🛍️ Browse Catalog</a></li>
+          <li><a href="#" onclick="Chatbot.toggleChat(); return false;" class="dashboard-menu-link">🤖 AI Support</a></li>
+          <li><a href="#" onclick="Auth.logout(); return false;" class="dashboard-menu-link logout-link">🚪 Sign Out</a></li>
+        </ul>
+      </aside>
+
+      <!-- Main Dashboard Content -->
+      <section class="dashboard-main">
+        <div class="dashboard-card">
+          <div class="dashboard-card-header">
+            <h2 class="dashboard-card-title">My Purchase History & Tracking</h2>
+            <a href="/products.html" class="btn btn-sm btn-primary">Start New Order</a>
+          </div>
+
+          <div id="buyerOrdersList" style="display: flex; flex-direction: column; gap: 20px;">
+            <p style="color: var(--color-text-secondary); text-align: center; padding: 40px;">Loading your orders from NAMITHAMART...</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-bottom">
+      <div>&copy; 2026 NAMITHAMART. All rights reserved. Buyer Portal.</div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chatbot.js"></script>
+
+  <script>
+    async function initBuyerDashboard() {
+      // Allow demo viewing or real login
+      let user = API.getUser();
+      if (!user) {
+        user = { id: 4, name: 'Namitha N.', email: 'buyer@namithamart.com', role: 'buyer' };
+        API.setAuth('NM-DEMO-BUYER', user);
+      }
+
+      document.getElementById('userNameDisplay').innerText = user.name;
+      document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
+
+      loadBuyerOrders(user.id);
+    }
+
+    async function loadBuyerOrders(userId) {
+      const container = document.getElementById('buyerOrdersList');
+
+      try {
+        const data = await API.getOrders({ userId });
+        const orders = data.orders || [];
+
+        if (orders.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 50px 20px;">
+              <div style="font-size: 3rem; margin-bottom: 10px;">📦</div>
+              <h3 style="color: var(--color-primary); margin-bottom: 6px;">No orders placed yet</h3>
+              <p style="color: var(--color-text-secondary); margin-bottom: 20px;">Explore the marketplace and make your first purchase!</p>
+              <a href="/products.html" class="btn btn-primary">Discover Products</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = orders.map(order => {
+          let badgeClass = 'badge-placed';
+          if (order.status === 'PROCESSING') badgeClass = 'badge-processing';
+          if (order.status === 'SHIPPED') badgeClass = 'badge-shipped';
+          if (order.status === 'DELIVERED') badgeClass = 'badge-delivered';
+          if (order.status === 'CANCELLED') badgeClass = 'badge-cancelled';
+
+          return `
+            <div style="border: 1px solid var(--color-card-border); border-radius: var(--radius-md); overflow: hidden; background: #FAF8FC;">
+              <div style="background-color: #EDE8F2; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border);">
+                <div>
+                  <span style="font-weight: 700; color: var(--color-primary);">Order #${order.orderNumber}</span>
+                  <span style="color: var(--color-text-secondary); font-size: 0.82rem; margin-left: 12px;">Placed on: ${order.createdAt || 'Recent'}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span class="badge ${badgeClass}">${order.status}</span>
+                  <span style="font-weight: 800; color: var(--color-primary); font-size: 1.05rem;">${formatCurrency(order.totalAmount)}</span>
+                </div>
+              </div>
+
+              <div style="padding: 16px 18px; background: white;">
+                <div style="font-size: 0.84rem; color: var(--color-text-secondary); margin-bottom: 10px;">
+                  <strong>Deliver to:</strong> ${order.shippingAddress} | <strong>Payment:</strong> ${order.paymentMethod}
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                  ${(order.items || []).map(item => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem;">
+                      <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="${item.productImageUrl}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600'">
+                        <div>
+                          <div style="font-weight: 600; color: var(--color-primary);">${item.productTitle}</div>
+                          <div style="font-size: 0.78rem; color: var(--color-text-secondary);">Qty: ${item.quantity} &times; ${formatCurrency(item.price)}</div>
+                        </div>
+                      </div>
+                      <div style="font-weight: 700; color: var(--color-primary);">
+                        ${formatCurrency(item.price * item.quantity)}
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        container.innerHTML = '<p style="color: #793748; text-align: center;">Error loading orders.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initBuyerDashboard);
+  </script>
+</body>
+</html>

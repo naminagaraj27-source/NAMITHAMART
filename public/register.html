@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — NAMITHAMART</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/chatbot.css">
+</head>
+<body style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
+
+  <div style="width: 100%; max-width: 480px;">
+    <!-- Logo -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <a href="/index.html" class="brand-logo" style="justify-content: center; font-size: 2.2rem; color: var(--color-primary);">
+        NAMITHAMART
+      </a>
+      <p style="color: var(--color-text-secondary); font-size: 0.95rem; margin-top: 6px;">
+        Join the multi-seller marketplace
+      </p>
+    </div>
+
+    <!-- Registration Card -->
+    <div class="card" style="box-shadow: var(--shadow-lg); border-radius: var(--radius-lg); padding: 32px 28px;">
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        
+        <!-- Account Type Selector -->
+        <div class="form-group">
+          <label>I want to register as:</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px;">
+            <label style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px; display: flex; align-items: center; gap: 8px; cursor: pointer; background: #FAF8FC;">
+              <input type="radio" name="accountRole" value="buyer" checked onchange="toggleStoreNameField(false)" style="accent-color: var(--color-primary);">
+              <div>
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--color-primary);">Buyer</div>
+                <div style="font-size: 0.75rem; color: var(--color-text-secondary);">Shop products</div>
+              </div>
+            </label>
+
+            <label style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px; display: flex; align-items: center; gap: 8px; cursor: pointer; background: #FAF8FC;">
+              <input type="radio" name="accountRole" value="seller" onchange="toggleStoreNameField(true)" style="accent-color: var(--color-primary);">
+              <div>
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--color-primary);">Seller</div>
+                <div style="font-size: 0.75rem; color: var(--color-text-secondary);">Sell on NAMITHAMART</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="regName">Full Name *</label>
+          <input type="text" id="regName" class="form-control" required placeholder="e.g. Namitha Kumar">
+        </div>
+
+        <div class="form-group">
+          <label for="regEmail">Email Address *</label>
+          <input type="email" id="regEmail" class="form-control" required placeholder="name@example.com">
+        </div>
+
+        <div class="form-group">
+          <label for="regPassword">Password *</label>
+          <input type="password" id="regPassword" class="form-control" minlength="6" required placeholder="At least 6 characters">
+        </div>
+
+        <div class="form-group" id="storeNameGroup" style="display: none;">
+          <label for="regStoreName">Store / Merchant Brand Name *</label>
+          <input type="text" id="regStoreName" class="form-control" placeholder="e.g. Namitha Fashion & Decor">
+        </div>
+
+        <button type="submit" id="regBtn" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 10px;">
+          Create NAMITHAMART Account
+        </button>
+      </form>
+    </div>
+
+    <!-- Login Link -->
+    <div style="text-align: center; margin-top: 16px; font-size: 0.92rem; color: var(--color-text-dark);">
+      Already have an account? 
+      <a href="/login.html" style="color: var(--color-primary); font-weight: 700; text-decoration: underline;">
+        Sign In here
+      </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 12px;">
+      <a href="/index.html" style="color: var(--color-secondary); font-size: 0.88rem;">&larr; Back to Home</a>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chatbot.js"></script>
+
+  <script>
+    function toggleStoreNameField(isSeller) {
+      const field = document.getElementById('storeNameGroup');
+      field.style.display = isSeller ? 'block' : 'none';
+      const input = document.getElementById('regStoreName');
+      if (isSeller) input.setAttribute('required', 'true');
+      else input.removeAttribute('required');
+    }
+
+    // Check query params (e.g. ?role=seller)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('role') === 'seller') {
+      const radio = document.querySelector('input[name="accountRole"][value="seller"]');
+      if (radio) {
+        radio.checked = true;
+        toggleStoreNameField(true);
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const pass = document.getElementById('regPassword').value.trim();
+      const role = document.querySelector('input[name="accountRole"]:checked').value;
+      const storeName = document.getElementById('regStoreName').value.trim();
+      const btn = document.getElementById('regBtn');
+
+      btn.disabled = true;
+      btn.innerText = 'Creating account...';
+
+      try {
+        const res = await API.register(name, email, pass, role, storeName);
+        showToast('Account created successfully on NAMITHAMART!');
+
+        setTimeout(() => {
+          if (role === 'seller') {
+            window.location.href = '/seller-dashboard.html';
+          } else {
+            window.location.href = '/buyer-dashboard.html';
+          }
+        }, 700);
+
+      } catch (err) {
+        alert(err.message || 'Registration failed.');
+        btn.disabled = false;
+        btn.innerText = 'Create NAMITHAMART Account';
+      }
+    }
+  </script>
+</body>
+</html>

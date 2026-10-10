@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Dashboard — NAMITHAMART</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/chatbot.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="navbar-container">
+      <a href="/index.html" class="brand-logo">NAMITHAMART</a>
+      <div style="color: var(--color-light); font-weight: 600; font-size: 0.95rem;">
+        🏪 Merchant Management Portal
+      </div>
+      <ul class="nav-links">
+        <li><a href="/index.html">View Storefront</a></li>
+        <li><a href="/products.html">All Marketplace Products</a></li>
+        <li id="navUserContainer"></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-user-card">
+          <div class="dashboard-avatar" id="sellerAvatar">S</div>
+          <div class="dashboard-user-name" id="sellerStoreName">Namitha Electronics Hub</div>
+          <div class="dashboard-user-role">Verified Seller</div>
+        </div>
+
+        <ul class="dashboard-menu">
+          <li><a href="#overview" class="dashboard-menu-link active">📊 Analytics Overview</a></li>
+          <li><a href="#products" class="dashboard-menu-link">📦 My Products</a></li>
+          <li><a href="#orders" class="dashboard-menu-link">🛒 Incoming Orders</a></li>
+          <li><a href="#" onclick="openAddProductModal(); return false;" class="dashboard-menu-link" style="color: var(--color-primary); font-weight: 700;">➕ Add New Product</a></li>
+          <li><a href="#" onclick="Auth.logout(); return false;" class="dashboard-menu-link logout-link">🚪 Sign Out</a></li>
+        </ul>
+      </aside>
+
+      <!-- Main Panel -->
+      <section class="dashboard-main">
+        <!-- KPI Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+              <h3 id="statRevenue">₹0.00</h3>
+              <p>Total Revenue</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-info">
+              <h3 id="statOrders">0</h3>
+              <p>Total Orders</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏷️</div>
+            <div class="stat-info">
+              <h3 id="statProducts">0</h3>
+              <p>Active Listings</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-info">
+              <h3 id="statLowStock">0</h3>
+              <p>Low Stock Alerts</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- My Products Management -->
+        <div class="dashboard-card" id="productsSection">
+          <div class="dashboard-card-header">
+            <h2 class="dashboard-card-title">My Store Inventory</h2>
+            <button onclick="openAddProductModal()" class="btn btn-sm btn-primary">
+              ➕ Add Product Listing
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Rating</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sellerProductsTableBody">
+                <tr><td colspan="6" style="text-align: center; padding: 24px;">Loading listings...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Incoming Orders Management -->
+        <div class="dashboard-card" id="ordersSection">
+          <div class="dashboard-card-header">
+            <h2 class="dashboard-card-title">Customer Orders for My Store</h2>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Address</th>
+                  <th>Total</th>
+                  <th>Current Status</th>
+                  <th>Update Status</th>
+                </tr>
+              </thead>
+              <tbody id="sellerOrdersTableBody">
+                <tr><td colspan="6" style="text-align: center; padding: 24px;">Loading orders...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- Add Product Modal -->
+  <div class="modal-overlay" id="addProductModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Add Product to NAMITHAMART</h3>
+        <button class="modal-close" onclick="closeAddProductModal()">&times;</button>
+      </div>
+      <form id="addProductForm" onsubmit="handleCreateProduct(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="pTitle">Product Title *</label>
+            <input type="text" id="pTitle" class="form-control" required placeholder="e.g. Wireless Ergonomic Mouse">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="form-group">
+              <label for="pCategory">Category *</label>
+              <select id="pCategory" class="form-control" required>
+                <option value="Electronics">Electronics</option>
+                <option value="Fashion">Fashion</option>
+                <option value="Home & Living">Home & Living</option>
+                <option value="Beauty & Wellness">Beauty & Wellness</option>
+                <option value="Books & Stationery">Books & Stationery</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pStock">Stock Units *</label>
+              <input type="number" id="pStock" class="form-control" min="1" value="25" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="form-group">
+              <label for="pPrice">Original Price (₹) *</label>
+              <input type="number" id="pPrice" step="0.01" class="form-control" required placeholder="1499.00">
+            </div>
+            <div class="form-group">
+              <label for="pDiscountPrice">Discounted Price (₹)</label>
+              <input type="number" id="pDiscountPrice" step="0.01" class="form-control" placeholder="1199.00">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="pImage">Image URL (Unsplash or direct image link)</label>
+            <input type="url" id="pImage" class="form-control" placeholder="https://images.unsplash.com/...">
+          </div>
+
+          <div class="form-group">
+            <label for="pDesc">Description</label>
+            <textarea id="pDesc" class="form-control" rows="3" placeholder="Provide features, materials, and highlights..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" onclick="closeAddProductModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveProductBtn">Save & Publish Listing</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-bottom">
+      <div>&copy; 2026 NAMITHAMART. All rights reserved. Seller Dashboard.</div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/chatbot.js"></script>
+
+  <script>
+    let currentSellerId = 2; // Default demo seller
+
+    async function initSellerDashboard() {
+      let user = API.getUser();
+      if (!user || user.role !== 'seller') {
+        user = { id: 2, name: 'Namitha Tech Seller', email: 'seller@namithamart.com', role: 'seller', storeName: 'Namitha Electronics Hub' };
+        API.setAuth('NM-DEMO-SELLER', user);
+      }
+
+      currentSellerId = user.id;
+      document.getElementById('sellerStoreName').innerText = user.storeName || user.name;
+      document.getElementById('sellerAvatar').innerText = (user.storeName || user.name).charAt(0).toUpperCase();
+
+      loadStats();
+      loadSellerProducts();
+      loadSellerOrders();
+    }
+
+    async function loadStats() {
+      try {
+        const data = await API.getSellerStats(currentSellerId);
+        const stats = data.stats || {};
+        document.getElementById('statRevenue').innerText = formatCurrency(stats.totalRevenue);
+        document.getElementById('statOrders').innerText = stats.totalOrders;
+        document.getElementById('statProducts').innerText = stats.totalProducts;
+        document.getElementById('statLowStock').innerText = stats.lowStockCount;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadSellerProducts() {
+      const tbody = document.getElementById('sellerProductsTableBody');
+      try {
+        const data = await API.getProducts({ sellerId: currentSellerId });
+        const products = data.products || [];
+
+        if (products.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--color-text-secondary);">No products listed yet. Click "+ Add Product Listing" to start selling.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = products.map(p => `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="${p.imageUrl}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
+                <strong style="color: var(--color-primary);">${p.title}</strong>
+              </div>
+            </td>
+            <td><span class="badge" style="background: #EFEAF4; color: var(--color-primary);">${p.category}</span></td>
+            <td><strong>${formatCurrency(p.discountPrice || p.price)}</strong></td>
+            <td>
+              <span style="font-weight: 700; color: ${p.stock < 10 ? '#793748' : '#2F5233'};">
+                ${p.stock} units
+              </span>
+            </td>
+            <td>★ ${p.rating.toFixed(1)} (${p.reviewCount})</td>
+            <td>
+              <button onclick="handleDeleteProduct(${p.id})" class="btn btn-sm btn-danger" style="padding: 4px 10px; font-size: 0.78rem;">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #793748;">Error loading products.</td></tr>';
+      }
+    }
+
+    async function loadSellerOrders() {
+      const tbody = document.getElementById('sellerOrdersTableBody');
+      try {
+        const data = await API.getOrders({ sellerId: currentSellerId });
+        const orders = data.orders || [];
+
+        if (orders.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--color-text-secondary);">No incoming orders yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = orders.map(o => `
+          <tr>
+            <td><strong>#${o.orderNumber}</strong></td>
+            <td>${o.customerName}</td>
+            <td style="max-width: 220px; font-size: 0.82rem;">${o.shippingAddress}</td>
+            <td><strong>${formatCurrency(o.totalAmount)}</strong></td>
+            <td><span class="badge badge-${o.status.toLowerCase()}">${o.status}</span></td>
+            <td>
+              <select onchange="handleStatusChange(${o.id}, this.value)" class="form-control" style="padding: 4px 8px; font-size: 0.82rem; width: auto;">
+                <option value="PLACED" ${o.status === 'PLACED' ? 'selected' : ''}>PLACED</option>
+                <option value="PROCESSING" ${o.status === 'PROCESSING' ? 'selected' : ''}>PROCESSING</option>
+                <option value="SHIPPED" ${o.status === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
+                <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
+                <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
+              </select>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #793748;">Error loading orders.</td></tr>';
+      }
+    }
+
+    function openAddProductModal() {
+      document.getElementById('addProductModal').classList.add('open');
+    }
+
+    function closeAddProductModal() {
+      document.getElementById('addProductModal').classList.remove('open');
+    }
+
+    async function handleCreateProduct(e) {
+      e.preventDefault();
+      const user = API.getUser();
+      const payload = {
+        title: document.getElementById('pTitle').value.trim(),
+        category: document.getElementById('pCategory').value,
+        stock: parseInt(document.getElementById('pStock').value, 10),
+        price: parseFloat(document.getElementById('pPrice').value),
+        discountPrice: document.getElementById('pDiscountPrice').value ? parseFloat(document.getElementById('pDiscountPrice').value) : 0,
+        imageUrl: document.getElementById('pImage').value.trim() || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600',
+        description: document.getElementById('pDesc').value.trim(),
+        sellerId: currentSellerId,
+        sellerName: user ? (user.storeName || user.name) : 'Namitha Electronics Hub'
+      };
+
+      const btn = document.getElementById('saveProductBtn');
+      btn.disabled = true;
+
+      try {
+        await API.createProduct(payload);
+        showToast('Product published to NAMITHAMART!');
+        closeAddProductModal();
+        document.getElementById('addProductForm').reset();
+        loadSellerProducts();
+        loadStats();
+      } catch (err) {
+        alert('Failed to publish product: ' + err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function handleDeleteProduct(id) {
+      if (!confirm('Are you sure you want to delete this listing from NAMITHAMART?')) return;
+      try {
+        await API.deleteProduct(id);
+        showToast('Product deleted');
+        loadSellerProducts();
+        loadStats();
+      } catch (e) {
+        showToast('Error deleting product');
+      }
+    }
+
+    async function handleStatusChange(orderId, status) {
+      try {
+        await API.updateOrderStatus(orderId, status);
+        showToast(`Order #${orderId} updated to ${status}`);
+        loadSellerOrders();
+      } catch (e) {
+        showToast('Error updating status');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initSellerDashboard);
+  </script>
+</body>
+</html>
